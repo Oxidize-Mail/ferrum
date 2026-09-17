@@ -3,6 +3,8 @@
 //
 #include "gtest/gtest.h"
 
-int main()
+TEST(BotTest, TestFerrum)
 {
+    EXPECT_EQ(1, 1);
+    EXPECT_FALSE(2 == 1);
 }
