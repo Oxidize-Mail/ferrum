@@ -3,25 +3,56 @@
 //
 
 #include <dpp/dpp.h>
+
 #include <cstdlib>
+#include <memory>
+#include <dotenv/dotenv.hpp>
+
+namespace {
+    std::string get_bot_token() {
+#ifdef _MSC_VER
+        char *value = nullptr;
+        size_t len = 0;
+        _dupenv_s(&value, &len, "BOT_TOKEN");
+        std::unique_ptr<char, decltype(&free)> guard(value, free);
+        return value ? std::string(value) : std::string();
+#else
+        const char *value = std::getenv("BOT_TOKEN");
+        return value ? std::string(value) : std::string();
+#endif
+    }
+}
 
 int main() {
-    dpp::cluster bot(std::getenv("BOT_TOKEN"));
+    dotenv::load(".env");
+    const std::string token = get_bot_token();
+    if (token.empty()) {
+        std::cerr << "BOT_TOKEN environment variable is not set." << std::endl;
+        return 1;
+    }
 
-    bot.on_slashcommand([](auto event) {
+    dpp::cluster bot(token);
+
+    bot.on_log(dpp::utility::cout_logger());
+
+    bot.on_slashcommand([](const dpp::slashcommand_t &event) {
         if (event.command.get_command_name() == "ping") {
-            event.reply("Pong!");
+            event.reply("JKBoyo shush your dirty mouth!");
         }
     });
+    bot.on_slashcommand([](const dpp::slashcommand_t &event) {
+        if (event.command.get_command_name() == "praise") {
+            event.reply("Bow to our glorious LEADER Brinhasavlin");
+        };
+    });
 
-    bot.on_ready([&bot](auto event) {
+    bot.on_ready([&bot](const dpp::ready_t &event) {
+        std::cout << "Event: " << event.shard_id << " is ready." << std::endl;
         if (dpp::run_once<struct register_bot_commands>()) {
-            bot.global_command_create(
-                dpp::slashcommand("ping", "Ping pong!", bot.me.id)
-            );
+            bot.global_command_create(dpp::slashcommand("ping", "Ping pong!", bot.me.id));
+            bot.global_command_create(dpp::slashcommand("praise", "Get potatoes", bot.me.id));
         }
     });
 
     bot.start(dpp::st_wait);
-    return 0;
 }
