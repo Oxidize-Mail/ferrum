@@ -1,9 +1,15 @@
 {
-  "name" : "spudnik",
-  "version-string" : "1.0.0",
-  "builtin-baseline" : "0f00916d00a6301c39a22fc9ec09319629326fcd",
-  "dependencies" : [ {
-    "name" : "dpp",
-    "version>=" : "10.1.6"
-  } ]
+  "name": "ferrum",
+  "version-string": "1.0.0",
+  "builtin-baseline": "0f00916d00a6301c39a22fc9ec09319629326fcd",
+  "dependencies": [
+    {
+      "name": "dpp",
+      "version>=": "10.1.6"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.18.0"
+    }
+  ]
 }

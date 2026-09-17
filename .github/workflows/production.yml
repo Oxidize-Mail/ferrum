@@ -1,0 +1,31 @@
+name: production.yml
+on:
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Run vcpkg (Sets up the tool and handles caching automatically)
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          # This tells the action where to find or clone vcpkg
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+
+      #3. Configure CMake pointing to the vcpkg toolchain file
+      - name: Configure CMake
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build and Run Tests
+        run: |
+          cmake --build build
+          cd build && ./my_tests

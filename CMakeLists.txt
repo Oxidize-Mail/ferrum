@@ -5,11 +5,14 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(dpp CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 
 add_executable(ferrum main.cpp)
+add_executable(ferrum_test test/test_ferrum.cpp)
+
 target_include_directories(ferrum PRIVATE third_party)
 target_link_libraries(ferrum PRIVATE dpp::dpp)
-
+target_link_libraries(ferrum_test PRIVATE GTest::gtest_main)
 add_library(project_warnings INTERFACE)
 
 if (MSVC)
@@ -27,6 +30,9 @@ endif ()
 
 
 target_link_libraries(ferrum PRIVATE project_warnings)
+
+enable_testing()
+add_test(NAME test_ferrum COMMAND test_ferrum)
 
 
 
