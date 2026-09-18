@@ -62,6 +62,8 @@ int main() {
                 dpp::slashcommand("ping", "Ping pong!", bot.me.id));
             bot.global_command_create(
                 dpp::slashcommand("praise", "Get potatoes", bot.me.id));
+            bot.global_command_create(dpp::slashcommand(
+                "high-praise", "Get Mighty potatoes", bot.me.id));
         }
     });
 
