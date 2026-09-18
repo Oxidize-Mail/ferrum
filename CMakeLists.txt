@@ -32,7 +32,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 else ()
     target_compile_options(project_warnings INTERFACE
             -Wall -Wextra -Werror -Wpedantic -Wunused -Wshadow -Wformat=2
-            -fdiagnostics-color=always -Wfatal-errors -fdiagnostics-show-caret
+            -fdiagnostics-color=always -Wfatal-errors
     )
 endif ()
 
