@@ -5,7 +5,6 @@
 #include <dpp/dpp.h>
 
 #include <cstdlib>
-#include <memory>
 #include <dotenv/dotenv.hpp>
 #include <iostream>
 
