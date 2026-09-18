@@ -77,13 +77,13 @@ on the first configure.
 
 `main.cpp` includes `<dotenv/dotenv.hpp>`, which is resolved from the
 `third_party/` include directory (see `target_include_directories` in
-`CMakeLists.txt`). That directory is not checked in, so place the header at:
+`CMakeLists.txt`). The header is included in the repository at:
 
 ```
 third_party/dotenv/dotenv.hpp
 ```
 
-before configuring, or the build will fail with a missing-include error.
+so no manual download is required before configuring.
 
 ### Build
 
@@ -154,3 +154,5 @@ Current commands:
 |-----------|--------------|
 | `/ping`   | Ping pong!   |
 | `/praise` | Get potatoes |
+| `/high-praise` | Get an extra-potent praise message |
+| `/wiz`    | Get a wizard greeting |
