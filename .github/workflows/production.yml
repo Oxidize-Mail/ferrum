@@ -12,6 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '4.0.0'
+
       # 2. Run vcpkg (Sets up the tool and handles caching automatically)
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v11
