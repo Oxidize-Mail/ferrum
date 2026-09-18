@@ -1,0 +1,19 @@
+language: en-US
+
+reviews:
+  profile: chill
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    base_branches:
+      - main
+  path_filters:
+    - "!build/**"
+    - "!vcpkg/**"
+    - "!vcpkg_installed/**"
+    - "!.idea/**"
+
+chat:
+  auto_reply: true
