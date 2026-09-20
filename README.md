@@ -10,12 +10,13 @@ We are using CMake to compile the project with VCPKG to handle install the requi
 
 ### Prerequisites
 
-| Tool     | Version  | Notes                                                              |
-|----------|----------|--------------------------------------------------------------------|
-| CMake    | 4.0.0+   | Required by `CMakeLists.txt`                                       |
-| Ninja    | any      | The `vcpkg-preset` uses the Ninja generator                        |
-| Compiler | C++23    | GCC 13+, Clang 16+, or MSVC from Visual Studio 2022                |
-| Git      | any      | Needed to clone VCPKG                                              |
+| Tool         | Version | Notes                                                 |
+| ------------ | ------- | ----------------------------------------------------- |
+| clang-format | 22.0.0+ | Optional, but used to format code with `clang-format` |
+| CMake        | 4.0.0+  | Required by `CMakeLists.txt`                          |
+| Ninja        | any     | The `vcpkg-preset` uses the Ninja generator           |
+| Compiler     | C++23   | GCC 13+, Clang 16+, or MSVC from Visual Studio 2022   |
+| Git          | any     | Needed to clone VCPKG                                 |
 
 On Linux, most of this comes from your package manager:
 
@@ -77,13 +78,8 @@ on the first configure.
 
 `main.cpp` includes `<dotenv/dotenv.hpp>`, which is resolved from the
 `third_party/` include directory (see `target_include_directories` in
-`CMakeLists.txt`). That directory is not checked in, so place the header at:
-
-```
-third_party/dotenv/dotenv.hpp
-```
-
-before configuring, or the build will fail with a missing-include error.
+`CMakeLists.txt`). The header is vendored in the repo along with its license,
+so there is nothing to download or place by hand.
 
 ### Build
 
@@ -98,7 +94,8 @@ cmake --build build
 ```
 
 The preset writes everything to `build/`, and the resulting binary is
-`build/ferrum`.
+`build/ferrum`. `build/` is the canonical build directory. CLion creates its own
+`cmake-build-*` directories, which are gitignored and not used by CI.
 
 On Windows the preset still asks for Ninja, so run these from a **Developer
 Command Prompt for VS 2022** (or a Developer PowerShell) so that `cl.exe` and
@@ -145,12 +142,15 @@ project root rather than from inside `build/`:
 ```
 
 You should see the shard-ready log line on startup. The bot registers its slash
-commands globally on first run, which can take up to an hour to propagate to
-every server.
+commands on first run. Global commands can take up to an hour to propagate to
+every server. Guild commands are registered only for the Oxidize server (the
+hardcoded `server_id` in `main.cpp`) and appear immediately.
 
-Current commands:
+Currently registered commands:
 
-| Command   | Description  |
-|-----------|--------------|
-| `/ping`   | Ping pong!   |
-| `/praise` | Get potatoes |
+| Command   | Scope  | Description  |
+| --------- | ------ | ------------ |
+| `/ping`   | Global | Ping pong!   |
+| `/praise` | Global | Get potatoes |
+| `/high-praise` | Guild  | give high praise |
+| `/wiz`    | Guild  | wizard       |
