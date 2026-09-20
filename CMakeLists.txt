@@ -9,6 +9,18 @@ find_package(OpenSSL REQUIRED)
 find_package(dpp CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
+add_executable(ferrum main.cpp
+        third_party/dotenv/dotenv.hpp)
+add_executable(ferrum_test test/test_ferrum.cpp)
+
+target_include_directories(ferrum PUBLIC third_party)
+target_include_directories(ferrum_test SYSTEM PUBLIC third_party)
+target_link_libraries(ferrum PRIVATE 
+    dpp::dpp 
+    project_warnings)
+target_link_libraries(ferrum_test PRIVATE 
+    SYSTEM GTest::gtest_main 
+    project_warnings)
 add_library(project_warnings INTERFACE)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
