@@ -67,7 +67,7 @@ int main() {
   bot.on_slashcommand([](const dpp::slashcommand_t& event) {
     if (event.command.get_command_name() == "make-a-difference") {
       event.reply("If you ever wanted to make a difference in compilers of the world, "
-                  "than all you need to do is join up and become a SoftOmni contributor");
+                  "then all you need to do is join up and become a SoftOmni contributor");
     }
   });
 
