@@ -48,7 +48,7 @@ int main() {
   bot.on_slashcommand([](const dpp::slashcommand_t& event) {
     if (event.command.get_command_name() == "praise") {
       event.reply("Bow to our glorious LEADER Brinhasavlin");
-    };
+    }
   });
 
   bot.on_slashcommand([](const dpp::slashcommand_t& event) {
@@ -56,12 +56,12 @@ int main() {
       event.reply(
           "Bow to our glorious LEADER Brinhasavlin!! Creator of the "
           "mighty Potato. long may he reign!!!");
-    };
+    }
   });
   bot.on_slashcommand([](const dpp::slashcommand_t& event) {
     if (event.command.get_command_name() == "wiz") {
       event.reply("Hey Merlin, you are a mighty wizard ");
-    };
+    }
   });
 
   bot.on_ready([&bot](const dpp::ready_t& event) {
