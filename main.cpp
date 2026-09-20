@@ -1,7 +1,7 @@
 //
 // Created by Ghostvox on 9/15/2026.
 //
-//fix readme
+// fix readme
 #include <dpp/appcommand.h>
 #include <dpp/dpp.h>
 
@@ -9,23 +9,9 @@
 #include <dotenv/dotenv.hpp>
 #include <iostream>
 
-namespace {
-std::string get_bot_token() {
-#ifdef _MSC_VER
-  char* value = nullptr;
-  size_t len = 0;
-  _dupenv_s(&value, &len, "BOT_TOKEN");
-  std::unique_ptr<char, decltype(&free)> guard(value, free);
-  return value ? std::string(value) : std::string();
-#else
-  const char* value = std::getenv("BOT_TOKEN");
-  return value ? std::string(value) : std::string();
-#endif
-}
-}  // namespace
+#include "config.h"
 
 int main() {
-  constexpr long long server_id = 1'425'936'348'438'859'836;
   dotenv(".env");
   const std::string token = get_bot_token();
   if (token.empty()) {
@@ -66,8 +52,10 @@ int main() {
 
   bot.on_slashcommand([](const dpp::slashcommand_t& event) {
     if (event.command.get_command_name() == "make-a-difference") {
-      event.reply("If you ever wanted to make a difference in compilers of the world, "
-                  "then all you need to do is join up and become a SoftOmni contributor");
+      event.reply(
+          "If you ever wanted to make a difference in compilers of the world, "
+          "then all you need to do is join up and become a SoftOmni "
+          "contributor");
     }
   });
 
@@ -86,7 +74,8 @@ int main() {
           dpp::slashcommand("high-praise", "give high praise", bot.me.id),
           server_id);
       bot.guild_command_create(
-        dpp::slashcommand("make-a-difference", "Make a difference", bot.me.id),
+          dpp::slashcommand("make-a-difference", "Make a difference",
+                            bot.me.id),
           server_id);
     }
   });

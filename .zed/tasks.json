@@ -1,0 +1,46 @@
+[
+  {
+    "label": "Configure",
+    "command": "cmake",
+    "args": ["--preset", "vcpkg-preset"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "always"
+  },
+  {
+    "label": "Build",
+    "command": "cmake",
+    "args": ["--build", "build"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "always"
+  },
+  {
+    "label": "Run",
+    "command": "./build/ferrum",
+    "args": [],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": true,
+    "reveal": "always"
+  },
+  {
+    "label": "Build & Run",
+    "command": "sh",
+    "args": ["-c", "cmake --build build && ./build/ferrum"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": true,
+    "reveal": "always"
+  },
+  {
+    "label": "Test",
+    "command": "ctest",
+    "args": ["--test-dir", "build", "--output-on-failure"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "always"
+  },
+  {
+    "label": "Build & Test",
+    "command": "sh",
+    "args": ["-c", "cmake --build build && ctest --test-dir build --output-on-failure"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "always"
+  }
+]
