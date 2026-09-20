@@ -14,8 +14,13 @@ add_executable(ferrum main.cpp
 add_executable(ferrum_test test/test_ferrum.cpp)
 
 target_include_directories(ferrum PUBLIC third_party)
-target_link_libraries(ferrum PRIVATE dpp::dpp)
-target_link_libraries(ferrum_test PRIVATE GTest::gtest_main)
+target_include_directories(ferrum_test SYSTEM PUBLIC third_party)
+target_link_libraries(ferrum PRIVATE 
+    dpp::dpp 
+    project_warnings)
+target_link_libraries(ferrum_test PRIVATE 
+    SYSTEM GTest::gtest_main 
+    project_warnings)
 add_library(project_warnings INTERFACE)
 
 if (MSVC)
