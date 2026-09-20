@@ -10,6 +10,7 @@ find_package(dpp CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
 add_library(project_warnings INTERFACE)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 if (MSVC)
     target_compile_options(project_warnings INTERFACE
@@ -39,7 +40,7 @@ target_link_libraries(ferrum PRIVATE
     dpp::dpp 
     project_warnings)
 target_link_libraries(ferrum_test PRIVATE 
-    SYSTEM GTest::gtest_main 
+    GTest::gtest_main 
     project_warnings)
 
 
