@@ -1,7 +1,8 @@
-name: production.yml
+name: Build & Test
 on:
   pull_request:
-    branches: ["main"]
+    branches: [ "main", "dev" ]
+
 
 jobs:
   compile:
@@ -36,10 +37,13 @@ jobs:
       #3. Configure CMake pointing to the vcpkg toolchain file
       - name: Configure CMake
         run: |
-          cmake -B build -S . \
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          cmake --preset vcpkg-preset
 
-      - name: Build and Run Tests
+      - name: Build
         run: |
-          cmake --build build
-          cd build && ./ferrum_test
+          cmake --build build vcpkg-preset
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+
