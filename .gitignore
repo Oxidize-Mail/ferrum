@@ -71,3 +71,5 @@ Testing/
 .claude
 .mcp.json
 .env
+.idea/
+cmake-build-debug/
