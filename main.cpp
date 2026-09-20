@@ -85,6 +85,9 @@ int main() {
       bot.guild_command_create(
           dpp::slashcommand("high-praise", "give high praise", bot.me.id),
           server_id);
+      bot.guild_command_create(
+        dpp::slashcommand("make-a-difference", "Make a difference", bot.me.id),
+          server_id);
     }
   });
 
