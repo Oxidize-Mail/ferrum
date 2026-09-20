@@ -41,7 +41,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build vcpkg-preset
+          cmake --build --preset vcpkg-preset
 
       - name: Test
         run: ctest --test-dir build --output-on-failure

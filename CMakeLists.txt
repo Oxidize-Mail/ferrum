@@ -40,7 +40,7 @@ target_link_libraries(ferrum PRIVATE
     dpp::dpp 
     project_warnings)
 target_link_libraries(ferrum_test PRIVATE 
-    SYSTEM GTest::gtest_main 
+    GTest::gtest_main 
     project_warnings)
 
 
