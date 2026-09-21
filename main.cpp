@@ -5,78 +5,70 @@
 #include <dpp/appcommand.h>
 #include <dpp/dpp.h>
 
-#include <cstdlib>
 #include <dotenv/dotenv.hpp>
 #include <iostream>
+#include <optional>
 
+#include "commands.h"
 #include "config.h"
 
 int main() {
   dotenv(".env");
   const std::string token = get_bot_token();
+
   if (token.empty()) {
     std::cerr << "BOT_TOKEN environment variable is not set." << std::endl;
     return 1;
   }
+  commands::CommandRegistry registry;
 
-  // this is a useless comment
+  registry.register_command({.name = "ping",
+                             .description = "ping JKBoyo",
+                             .guild_id = std::nullopt,
+                             .handler = commands::ping});
+
+  registry.register_command({.name = "praise",
+                             .description = "Get potatoes",
+                             .guild_id = std::nullopt,
+                             .handler = commands::praise});
+
+  // Guild-specific commands
+  registry.register_command({.name = "wiz",
+                             .description = "wizard",
+                             .guild_id = server_id,
+                             .handler = commands::wiz});
+
+  registry.register_command({.name = "high-praise",
+                             .description = "give high praise",
+                             .guild_id = server_id,
+                             .handler = commands::high_praise});
+  registry.register_command({.name = "make-a-difference",
+                             .description = "make a difference",
+                             .guild_id = server_id,
+                             .handler = commands::make_a_difference});
 
   dpp::cluster bot(token);
 
   bot.on_log(dpp::utility::cout_logger());
 
-  bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-    if (event.command.get_command_name() == "ping") {
-      event.reply("JKBoyo shush your dirty mouth!");
+  bot.on_slashcommand([&registry](const dpp::slashcommand_t& event) {
+    if (const auto* handler = registry.find(event.command.get_command_name())) {
+      event.reply((*handler)());
     }
   });
 
-  bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-    if (event.command.get_command_name() == "praise") {
-      event.reply("Bow to our glorious LEADER Brinhasavlin");
-    }
-  });
-
-  bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-    if (event.command.get_command_name() == "high-praise") {
-      event.reply(
-          "Bow to our glorious LEADER Brinhasavlin!! Creator of the "
-          "mighty Potato. long may he reign!!!");
-    }
-  });
-  bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-    if (event.command.get_command_name() == "wiz") {
-      event.reply("Hey Merlin, you are a mighty wizard ");
-    }
-  });
-
-  bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-    if (event.command.get_command_name() == "make-a-difference") {
-      event.reply(
-          "If you ever wanted to make a difference in compilers of the world, "
-          "then all you need to do is join up and become a SoftOmni "
-          "contributor");
-    }
-  });
-
-  bot.on_ready([&bot](const dpp::ready_t& event) {
+  bot.on_ready([&bot, registry](const dpp::ready_t& event) {
     std::cout << "Event: " << event.shard_id << " is ready." << std::endl;
-    if (dpp::run_once<struct register_bot_commands>()) {
-      bot.global_command_create(
-          dpp::slashcommand("ping", "Ping pong!", bot.me.id));
-
-      bot.global_command_create(
-          dpp::slashcommand("praise", "Get potatoes", bot.me.id));
-
-      bot.guild_command_create(dpp::slashcommand("wiz", "wizard", bot.me.id),
-                               server_id);
-      bot.guild_command_create(
-          dpp::slashcommand("high-praise", "give high praise", bot.me.id),
-          server_id);
-      bot.guild_command_create(
-          dpp::slashcommand("make-a-difference", "Make a difference",
-                            bot.me.id),
-          server_id);
+    const std::vector<commands::Command>& cmds = registry.get_all_commands();
+    for (auto c : cmds) {
+      if (c.guild_id == std::nullopt) {
+        bot.global_command_create(
+            dpp::slashcommand(c.name, c.description, bot.me.id));
+      } else {
+        bot.guild_command_create(
+            dpp::slashcommand(c.name, c.description, bot.me.id),
+            c.guild_id.value());
+      }
     }
   });
 
