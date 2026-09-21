@@ -59,15 +59,17 @@ int main() {
 
   bot.on_ready([&bot, registry](const dpp::ready_t& event) {
     std::cout << "Event: " << event.shard_id << " is ready." << std::endl;
-    const std::vector<commands::Command>& cmds = registry.get_all_commands();
-    for (auto c : cmds) {
-      if (c.guild_id == std::nullopt) {
-        bot.global_command_create(
-            dpp::slashcommand(c.name, c.description, bot.me.id));
-      } else {
-        bot.guild_command_create(
-            dpp::slashcommand(c.name, c.description, bot.me.id),
-            c.guild_id.value());
+    if (dpp::run_once<struct register_bot_commands>()) {
+      const std::vector<commands::Command>& cmds = registry.get_all_commands();
+      for (auto c : cmds) {
+        if (c.guild_id == std::nullopt) {
+          bot.global_command_create(
+              dpp::slashcommand(c.name, c.description, bot.me.id));
+        } else {
+          bot.guild_command_create(
+              dpp::slashcommand(c.name, c.description, bot.me.id),
+              c.guild_id.value());
+        }
       }
     }
   });
