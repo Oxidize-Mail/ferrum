@@ -9,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-std::string get_bot_token()
+static auto get_bot_token() -> std::string
 {
 #ifdef _MSC_VER
     char* value = nullptr;
@@ -22,31 +22,44 @@ std::string get_bot_token()
     return value ? std::string(value) : std::string();
 #endif
 }
-std::string get_server_id_env()
+
+static auto get_server_id_env() -> std::string
 {
     const char* value = std::getenv("SERVER_ID");
     return value ? std::string(value) : std::string();
 }
 
-void config::write_starter_config(const fs::path& config_path, std::string bot_token, std::string server_id)
+auto config::write_starter_config(const fs::path& path, std::string bot_token,
+                                  std::string server_id) -> std::expected<void, ConfigError>
 {
-    fs::create_directories(config_path.parent_path());
-    std::ofstream my_file(config_path);
-    if (!my_file.is_open())
+    std::error_code ec;
+    fs::create_directories(path.parent_path(), ec);
+    if (ec)
     {
-        std::cerr << "Error creating the config file!\n";
-        exit(1);
+        return std::unexpected(ConfigError{
+            ConfigError::Kind::create_failed,
+            std::format("Could not create {}: {}", path.parent_path().string(), ec.message())
+        });
+    }
+
+    std::ofstream config_file(path);
+    if (!config_file.is_open())
+    {
+        return std::unexpected(ConfigError{
+            ConfigError::Kind::create_failed,
+            std::format("Could not create the config file at {}", path.string())
+        });
     }
     if (bot_token.empty())
     {
         bot_token = "0";
-        std::cerr << "Bot token environment variable was missing please go to " << config_path <<
+        std::cerr << "Bot token environment variable was missing please go to " << path <<
             " and fill value in\n";
     }
     if (server_id.empty())
     {
         server_id = "0";
-        std::cerr << "Server ID environment variable was missing please go to " << config_path <<
+        std::cerr << "Server ID environment variable was missing please go to " << path <<
             " and fill value in\n";
     }
     std::string tmp = "# Ferrum Configuration File\n"
@@ -58,66 +71,99 @@ void config::write_starter_config(const fs::path& config_path, std::string bot_t
         "id = {}\n";
     std::string starter_config = std::vformat(tmp, std::make_format_args(bot_token, server_id));
 
-    my_file << starter_config;
+    config_file << starter_config;
+
+    // Close explicitly so a failed flush is reported here rather than swallowed by
+    // the destructor.
+    config_file.close();
+    if (!config_file)
+    {
+        return std::unexpected(ConfigError{
+            ConfigError::Kind::create_failed,
+            std::format("Could not write the config file at {}", path.string())
+        });
+    }
+    return {};
 }
 
-std::string config::Config::path()
+auto config::Config::path() -> std::string
 {
     return this->config_path;
 };
 
-config::Config config::get_config()
-
+auto config::get_config(const fs::path& path) -> std::expected<Config, ConfigError>
 {
-    toml::table tbl;
-        auto bot_token = get_bot_token();
-        auto server_id = get_server_id_env();
+    if (!fs::exists(path))
+    {
+        const auto written = write_starter_config(path, get_bot_token(), get_server_id_env());
+        if (!written)
+        {
+            return std::unexpected(written.error());
+        }
+    }
 
-    fs::path root_path;
+    Config config(path);
     try
     {
-        uid_t uid = getuid();
-        struct passwd* pw = getpwuid(uid);
-        if (pw && pw->pw_dir)
-        {
-            root_path = fs::path(pw->pw_dir);
-        }
-        else if (const char* home_env = std::getenv("HOME"); home_env != nullptr)
-        {
-            root_path = fs::path(home_env);
-        }
-
-
-        fs::path config_path = root_path / ".config/ferrum/ferrum.toml";
-        if (!fs::exists(config_path))
-        {
-            write_starter_config(config_path, bot_token, server_id);
-        }
-        Config config(config_path);
-        tbl = toml::parse_file(config.path());
-
-        config.config = tbl;
-        return config;
+        config.config = toml::parse_file(config.path());
     }
-    catch (const toml::parse_error&
-        err)
+    catch (const toml::parse_error& err)
     {
-        std::cerr << "Parsing failed:\n" << err << "\n";
-        exit(1);
-    };
+        return std::unexpected(ConfigError{
+            ConfigError::Kind::parse_failed,
+            std::format("Could not parse {} at line {} column {}: {}", path.string(),
+                        err.source().begin.line, err.source().begin.column, err.description())
+        });
+    }
+    return config;
 }
 
-std::string config::Config::get_token()
+auto config::default_path() -> std::expected<fs::path, ConfigError>
+{
+    // The XDG base directory spec says $XDG_CONFIG_HOME wins, and that a relative
+    // value must be ignored. It already names the config directory itself.
+    if (const char* xdg = std::getenv("XDG_CONFIG_HOME"); xdg != nullptr && *xdg != '\0')
+    {
+        if (const fs::path xdg_path(xdg); xdg_path.is_absolute())
+        {
+            return xdg_path / "ferrum/ferrum.toml";
+        }
+    }
+
+    // $HOME before the passwd entry, so users and containers can redirect it.
+    if (const char* home_env = std::getenv("HOME"); home_env != nullptr && *home_env != '\0')
+    {
+        return fs::path(home_env) / ".config/ferrum/ferrum.toml";
+    }
+
+    if (const passwd* pw = getpwuid(getuid()); pw != nullptr && pw->pw_dir != nullptr)
+    {
+        return fs::path(pw->pw_dir) / ".config/ferrum/ferrum.toml";
+    }
+
+    return std::unexpected(ConfigError{
+        ConfigError::Kind::no_home_directory,
+        "Could not determine a home directory: none of $XDG_CONFIG_HOME, $HOME or the "
+        "passwd entry for this user were usable"
+    });
+}
+
+auto config::Config::delete_config() -> void
+{
+    std::filesystem::remove(config_path);
+}
+
+auto config::Config::get_token() -> std::string
 {
     if (config["bot"]["token"] == "0")
     {
         std::cerr << "You have not set the bot token, please go set it in the file located at: \n  " << config_path <<
-            "/n";
+            "\n";
     }
     return config["bot"]["token"].value_or("");
 }
 
-long long config::Config::get_server_id()
+auto config::Config::get_server_id() -> long long
 {
     return config["server"]["id"].value<long long>().value_or(0);
 }

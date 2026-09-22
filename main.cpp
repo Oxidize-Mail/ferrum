@@ -15,9 +15,31 @@
 int main()
 {
     dotenv(".env");
-    config::Config cfg = config::get_config();
-    long long server_id = cfg.get_server_id();
-    std::string bot_token = cfg.get_token();
+
+    const auto config_path = config::default_path();
+    if (!config_path)
+    {
+        std::cerr << config_path.error().message << "\n";
+        return 1;
+    }
+
+    auto cfg = config::get_config(*config_path);
+    if (!cfg)
+    {
+        std::cerr << cfg.error().message << "\n";
+        return 1;
+    }
+
+    long long server_id = cfg->get_server_id();
+    std::string bot_token = cfg->get_token();
+
+    // A freshly written config carries placeholders; starting the bot with one would
+    // only fail at the Discord handshake, a long way from the actual cause.
+    if (bot_token.empty() || bot_token == "0")
+    {
+        std::cerr << "Bot token is not set. Edit " << *config_path << " and set bot.token\n";
+        return 1;
+    }
 
 
     commands::CommandRegistry registry;

@@ -44,7 +44,10 @@ target_link_libraries(ferrum PRIVATE
 )
 
 
-add_executable(test_ferrum test/test_ferrum.cpp)
+add_executable(test_ferrum
+        test/test_ferrum.cpp
+        test/test_config.cpp
+)
 target_include_directories(test_ferrum PRIVATE include)
 target_include_directories(test_ferrum SYSTEM PUBLIC third_party)
 target_link_libraries(test_ferrum PRIVATE
