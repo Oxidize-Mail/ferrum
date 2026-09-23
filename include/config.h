@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <string>
 
-#include "toml++/toml.hpp"
+#include <toml++/toml.hpp>
 
 namespace config
 {
