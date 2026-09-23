@@ -12,11 +12,11 @@
 namespace commands {
 
 // Pure logic functions
-std::string ping();
-std::string praise();
-std::string high_praise();
-std::string wiz();
-std::string make_a_difference();
+auto ping() -> std::string;
+auto praise() -> std::string;
+auto high_praise() -> std::string;
+auto wiz() -> std::string;
+auto make_a_difference() -> std::string;
 
 struct Command {
   std::string name;
@@ -27,9 +27,9 @@ struct Command {
 
 class CommandRegistry {
  public:
-  void register_command(Command cmd);
-  const std::function<std::string()>* find(std::string_view name) const;
-  [[nodiscard]] const std::vector<Command>& get_all_commands() const;
+  auto register_command(Command cmd) -> void;
+  auto find(std::string_view name) const -> const std::function<std::string()>*;
+  [[nodiscard]] auto get_all_commands() const -> const std::vector<Command>&;
 
  private:
   std::unordered_map<std::string, std::function<std::string()>> handlers_;
