@@ -111,14 +111,24 @@ auto config::Config::path() -> std::string { return this->config_path; };
 auto config::get_config(const fs::path& path)
     -> std::expected<Config, ConfigError>
 {
-    if (!fs::exists(path))
+    std::error_code exists_error;
+    if (!fs::exists(path, exists_error))
     {
-        const auto written =
-            write_starter_config(path, get_bot_token(), get_server_id_env());
-        if (!written)
+        if (exists_error)
         {
-            return std::unexpected(written.error());
+            return std::unexpected(ConfigError{
+                ConfigError::Kind::create_failed,
+                std::format("Could not access {}: {}",
+                            path.string(), exists_error.message())
+            });
         }
+    }
+
+    const auto written =
+        write_starter_config(path, get_bot_token(), get_server_id_env());
+    if (!written)
+    {
+        return std::unexpected(written.error());
     }
 
     Config config(path);
@@ -136,7 +146,9 @@ auto config::get_config(const fs::path& path)
                             err.source().begin.column, err.description())
             });
     }
-    return config;
+
+    return
+        config;
 }
 
 auto config::default_path() -> std::expected<fs::path, ConfigError>

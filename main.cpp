@@ -41,6 +41,11 @@ int main()
         return 1;
     }
 
+    if (server_id == 0)
+    {
+        std::cerr << "ServerID is  not set. Edit " << *config_path << " and set bot.token\n";
+    }
+
 
     commands::CommandRegistry registry;
 
