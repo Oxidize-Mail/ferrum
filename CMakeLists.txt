@@ -3,8 +3,6 @@ project(ferrum CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -33,7 +31,7 @@ else ()
 endif ()
 
 add_library(ferrum_config STATIC src/config.cpp src/commands.cpp)
-target_include_directories(ferrum_config PUBLIC include)
+target_include_directories(ferrum_config PUBLIC include third_party)
 target_link_libraries(ferrum_config PUBLIC dpp::dpp)
 target_link_libraries(ferrum_config PRIVATE project_warnings)
 

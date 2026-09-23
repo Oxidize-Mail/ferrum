@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <string>
 
-#include "toml++/toml.h"
+#include "toml++/toml.hpp"
 
 namespace config
 {
@@ -17,8 +17,8 @@ namespace config
         enum class Kind
         {
             no_home_directory, // could not work out where the user's config should live
-            create_failed,     // config was absent and could not be written
-            parse_failed,      // config exists but is not valid TOML
+            create_failed, // config was absent and could not be written
+            parse_failed, // config exists but is not valid TOML
         };
 
         Kind kind;
