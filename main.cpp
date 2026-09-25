@@ -14,12 +14,35 @@
 
 int main() {
   dotenv(".env");
-  const std::string token = get_bot_token();
-
-  if (token.empty()) {
-    std::cerr << "BOT_TOKEN environment variable is not set." << std::endl;
+  const auto config_path = config::default_path();
+  if (!config_path) {
+    std::cerr << config_path.error().message << "\n";
     return 1;
   }
+
+  auto cfg = config::get_config(*config_path);
+  if (!cfg) {
+    std::cerr << cfg.error().message << "\n";
+    return 1;
+  }
+
+  long long server_id = cfg->get_server_id();
+  std::string bot_token = cfg->get_token();
+
+  // A freshly written config carries placeholders; starting the bot with one
+  // would only fail at the Discord handshake, a long way from the actual cause.
+  if (bot_token.empty() || bot_token == "0") {
+    std::cerr << "Bot token is not set. Edit " << *config_path
+              << " and set bot.token\n";
+    return 1;
+  }
+
+  if (server_id == 0) {
+    std::cerr << "ServerID is not set. Edit " << *config_path
+              << " and set server.id\n";
+    return 1;
+  }
+
   commands::CommandRegistry registry;
 
   registry.register_command({.name = "ping",
@@ -47,7 +70,7 @@ int main() {
                              .guild_id = server_id,
                              .handler = commands::make_a_difference});
 
-  dpp::cluster bot(token);
+  dpp::cluster bot(bot_token);
 
   bot.on_log(dpp::utility::cout_logger());
 
