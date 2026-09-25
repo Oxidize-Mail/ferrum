@@ -122,14 +122,14 @@ auto config::get_config(const fs::path& path)
                             path.string(), exists_error.message())
             });
         }
+        const auto written =
+            write_starter_config(path, get_bot_token(), get_server_id_env());
+        if (!written)
+        {
+            return std::unexpected(written.error());
+        }
     }
 
-    const auto written =
-        write_starter_config(path, get_bot_token(), get_server_id_env());
-    if (!written)
-    {
-        return std::unexpected(written.error());
-    }
 
     Config config(path);
     try

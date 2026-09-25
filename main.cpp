@@ -44,6 +44,7 @@ int main()
     if (server_id == 0)
     {
         std::cerr << "ServerID is  not set. Edit " << *config_path << " and set bot.token\n";
+        return 1;
     }
 
 

@@ -36,7 +36,7 @@ target_link_libraries(ferrum_config PUBLIC dpp::dpp)
 target_link_libraries(ferrum_config PRIVATE project_warnings)
 
 add_executable(ferrum main.cpp)
-target_include_directories(ferrum PRIVATE third_party)
+target_include_directories(ferrum SYSTEM PRIVATE third_party)
 target_link_libraries(ferrum PRIVATE
         dpp::dpp
         project_warnings
