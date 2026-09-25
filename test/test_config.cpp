@@ -56,7 +56,9 @@ TEST_F(TestConfig, ReadServerId) {
 
 TEST_F(TestConfig, MalformedConfigIsReportedNotFatal) {
   fs::create_directories(config_path.parent_path());
+  fs::perms skim_perms =fs::perms::owner_read | fs::perms::owner_write;
   std::ofstream(config_path) << "[bot\ntoken = \n";
+  fs::permissions(config_path, skim_perms, fs::perm_options::replace);
 
   const auto cfg = config::get_config(config_path);
   ASSERT_FALSE(cfg.has_value());

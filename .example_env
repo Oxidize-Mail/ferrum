@@ -1,2 +1,6 @@
+
+# Replace with your bot token, You can find it by going to the Discord Developer Portal, selecting your application, and navigating to the "Bot" section.
 BOT_TOKEN="TOKEN GOES HERE"
-SERVER_ID= a long long number
+
+# Replace with your server ID, You can find it by enabling developer mode in Discord and right-clicking your server name to copy the ID.
+SERVER_ID= 123124454785777

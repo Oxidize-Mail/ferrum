@@ -19,6 +19,7 @@ namespace config
             no_home_directory, // could not work out where the user's config should live
             create_failed, // config was absent and could not be written
             parse_failed, // config exists but is not valid TOML
+            invalid_value // Environment variable wasn't set or was invalid
         };
 
         Kind kind;

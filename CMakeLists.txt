@@ -12,29 +12,19 @@ find_package(dpp CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
 add_library(project_warnings INTERFACE)
-if (MSVC)
-    target_compile_options(project_warnings INTERFACE
-            /W4          # roughly equivalent to -Wall -Wextra
-            /WX          # treat warnings as errors (like -Werror)
-            /permissive- # stricter standards conformance
-    )
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(project_warnings INTERFACE
-            -Wall -Wextra -Werror -Wpedantic -Wunused -Wshadow -Wformat=2
-            -fdiagnostics-color=always -Wfatal-errors
-    )
-else ()
-    target_compile_options(project_warnings INTERFACE
-            -Wall -Wextra -Werror -Wpedantic -Wunused -Wshadow -Wformat=2
-            -fdiagnostics-color=always -Wfatal-errors
-    )
-endif ()
+# GCC accepts -Wunreachable-code but ignores it; Clang enforces it.
+target_compile_options(project_warnings INTERFACE
+        -Wall -Wextra -Werror -Wpedantic -Wunused -Wshadow -Wformat=2
+        -fdiagnostics-color=always -Wfatal-errors -Wunreachable-code
+)
 
+# config compiler setup
 add_library(ferrum_config STATIC src/config.cpp src/commands.cpp)
 target_include_directories(ferrum_config PUBLIC include third_party)
 target_link_libraries(ferrum_config PUBLIC dpp::dpp)
 target_link_libraries(ferrum_config PRIVATE project_warnings)
 
+# main executable setup
 add_executable(ferrum main.cpp)
 target_include_directories(ferrum SYSTEM PRIVATE third_party)
 target_link_libraries(ferrum PRIVATE
@@ -44,6 +34,7 @@ target_link_libraries(ferrum PRIVATE
 )
 
 
+# test executable setup
 add_executable(test_ferrum
         test/test_ferrum.cpp
         test/test_config.cpp

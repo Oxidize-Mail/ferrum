@@ -2,6 +2,9 @@
 
 A discord bot to drive engagement and foster a positive community in the Oxidize server
 
+Ferrum supports **Linux and macOS**. Windows is not supported: the config code
+relies on POSIX APIs (`pwd.h`, `getpwuid`) and Unix file permissions.
+
 # Contributing
 
 ## Setup
@@ -15,7 +18,7 @@ We are using CMake to compile the project with VCPKG to handle install the requi
 | clang-format | 22.0.0+ | Optional, but used to format code with `clang-format` |
 | CMake        | 4.0.0+  | Required by `CMakeLists.txt`                          |
 | Ninja        | any     | The `vcpkg-preset` uses the Ninja generator           |
-| Compiler     | C++23   | GCC 13+, Clang 16+, or MSVC from Visual Studio 2022   |
+| Compiler     | C++23   | GCC 13+ or Clang 16+                                  |
 | Git          | any     | Needed to clone VCPKG                                 |
 
 On Linux, most of this comes from your package manager:
@@ -26,6 +29,13 @@ sudo pacman -S cmake ninja git base-devel
 
 # Debian/Ubuntu
 sudo apt install cmake ninja-build git build-essential curl zip unzip tar pkg-config
+```
+
+On macOS, install the Xcode Command Line Tools (`xcode-select --install`) and
+the rest from Homebrew:
+
+```sh
+brew install cmake ninja pkg-config
 ```
 
 ### VCPKG SETUP
@@ -41,11 +51,7 @@ If you already have VCPKG installed and `VCPKG_ROOT` exported, skip to [Build](#
 2. Run the bootstrap script to build the `vcpkg` executable:
 
    ```sh
-   # Linux / macOS
    ~/vcpkg/bootstrap-vcpkg.sh
-
-   # Windows (PowerShell)
-   .\vcpkg\bootstrap-vcpkg.bat
    ```
 
 3. Export `VCPKG_ROOT` and add VCPKG to your `PATH`. The CMake preset reads
@@ -55,12 +61,6 @@ If you already have VCPKG installed and `VCPKG_ROOT` exported, skip to [Build](#
    # ~/.bashrc, ~/.zshrc, or your shell's rc file
    export VCPKG_ROOT="$HOME/vcpkg"
    export PATH="$VCPKG_ROOT:$PATH"
-   ```
-
-   ```powershell
-   # Windows (PowerShell, persists for your user)
-   [Environment]::SetEnvironmentVariable('VCPKG_ROOT', "$HOME\vcpkg", 'User')
-   [Environment]::SetEnvironmentVariable('PATH', "$env:PATH;$HOME\vcpkg", 'User')
    ```
 
 4. Open a new shell and confirm it took:
@@ -101,12 +101,8 @@ The preset writes everything to `build/`, and the resulting binary is
 `build/ferrum`. `build/` is the canonical build directory. CLion creates its own
 `cmake-build-*` directories, which are gitignored and not used by CI.
 
-On Windows the preset still asks for Ninja, so run these from a **Developer
-Command Prompt for VS 2022** (or a Developer PowerShell) so that `cl.exe` and
-the Windows SDK are on the path.
-
-Note that the project builds with `-Wall -Wextra -Werror -Wpedantic`
-(`/W4 /WX` under MSVC) — warnings are errors, so a warning in your patch will
+Note that the project builds with `-Wall -Wextra -Werror -Wpedantic` —
+warnings are errors, so a warning in your patch will
 fail the build.
 
 ### Test
