@@ -10,6 +10,7 @@
     {
       "name": "gtest",
       "version>=": "1.18.0"
-    }
+    },
+    "sqlitecpp"
   ]
 }
