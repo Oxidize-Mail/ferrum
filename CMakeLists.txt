@@ -10,6 +10,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 find_package(OpenSSL REQUIRED)
 find_package(dpp CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
+find_package(SQLiteCpp CONFIG REQUIRED)
 
 add_library(project_warnings INTERFACE)
 # GCC accepts -Wunreachable-code but ignores it; Clang enforces it.
