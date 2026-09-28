@@ -49,7 +49,7 @@ message being reacted to.
 
 | Source | Amount | Notes |
 |---|---|---|
-| `voice` | 5 XP per minute spent in a voice channel | One `experienceEvent` row per minute. If the bot restarts, at most one minute is lost. AFK users earn nothing. |
+| `voice` | 5 XP per minute spent in a voice channel | One `experienceEvent` row per minute, written by the bot's per-minute tick. Time spent in voice while the bot is offline (e.g. during a restart) earns nothing and is not backfilled. AFK users earn nothing. |
 | `admin` | Whatever the admin passes as the command argument | Admin/mod-only slash command. Positive only. |
 | `weekly_checkin` | 25 XP | Awarded when a user replies to the weekly check-in event. Once per user per event. |
 
@@ -153,6 +153,9 @@ Table-level constraints:
 - `UNIQUE (audit_id, giver_id)`: redundant as a uniqueness rule, since `audit_id` is already
   the PK. It exists only because SQLite requires the target of `repRecipient`'s composite FK
   to have a matching unique index.
+- `CHECK ((source = 'thanks_message') = (msg_id IS NOT NULL))`: thank-you grants must
+  reference their message and slash-command grants must not. Without this, a thank-you row
+  with a `NULL` `msg_id` would slip past `UNIQUE (giver_id, msg_id)`.
 - `CHECK ((revoked_at IS NULL) = (revoked_by IS NULL))`: both are set, or neither is.
 
 ### repRecipient
@@ -198,7 +201,7 @@ Append-only log of XP-granting activity.
 | `source` | TEXT | NOT NULL, CHECK in (`'voice'`, `'admin'`, `'weekly_checkin'`) | |
 | `experience_granted` | INTEGER | NOT NULL, CHECK (`experience_granted > 0`) | Whole XP points. |
 | `awarded_by` | INTEGER | NULL, FK → `users.discord_id` | The admin who awarded it. Set only when `source = 'admin'`. |
-| `reference_id` | INTEGER | NULL | For `weekly_checkin`: the Discord ID of that week's check-in event message. |
+| `reference_id` | INTEGER | NULL | For `weekly_checkin`: the Discord ID of that week's check-in event message. If we ever need to query past check-ins, give them their own table. |
 | `occurred_at` | TEXT | NOT NULL | |
 | `revoked_at` | TEXT | NULL | Set when an admin/mod revokes this XP award. |
 | `revoked_by` | INTEGER | NULL, FK → `users.discord_id` | The admin/mod who revoked it. |
@@ -224,7 +227,8 @@ When a "thank you" message is posted, the bot:
 3. Inserts the messages **oldest first**, ending with the thank-you message itself (which
    `repAudit.msg_id` references), so each row's parent already exists when the FK is checked.
    It uses `INSERT OR IGNORE`, because a message can belong to several grants' chains.
-4. Records the number of messages walked as `repAudit.chain_length`.
+4. Records the number of messages walked as `repAudit.chain_length`. The thank-you message
+   itself counts, so a thank-you that isn't a reply has `chain_length = 1`.
 
 To reconstruct a grant's chain later, start at `repAudit.msg_id` and follow `previous_message`
 up the tree. Each step is a primary-key lookup on `message_id`.

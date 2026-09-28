@@ -16,8 +16,6 @@ These still need a decision from both of us before the design is "done."
 - **Slash-command amount cap.** The rep slash command takes the amount as an argument. What's
   the maximum? Without one, any member can hand out 1,000,000 rep in one command. Should the
   cap be a fixed number (e.g. the ~91 a full 10-message chain earns), or vary by role?
-- **Chain length for a thank-you that isn't a reply.** Is it 1 (the thank-you message
-  itself), or 0?
 - **Detecting "thank you."** What phrases count ("thanks", "ty", "thank you")? This is app
   logic, not schema, but it decides what ends up in `repAudit`.
 - **Revoked grants and the cooldown.** Does a revoked grant still count toward the 1-hour pair
@@ -32,9 +30,6 @@ These still need a decision from both of us before the design is "done."
   being in the server's AFK channel, or also self-deafened, self-muted, or alone in a
   channel? Discord only moves idle users to the AFK channel after a timeout, and only if the
   server has one configured.
-- **Weekly check-in event ID.** Is `reference_id` the Discord message ID of the check-in post,
-  or an ID from a table of our own? If we ever want to query "past check-ins," it probably
-  needs its own table.
 
 ## Archival and compaction (proposal — needs agreement)
 
