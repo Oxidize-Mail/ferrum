@@ -3,8 +3,9 @@
 Design for issue [#10](https://github.com/Oxidize-Mail/ferrum/issues/10). This is a schema
 design, not code. Everything in this doc is decided. `reputation-xp-open-questions.md` lists
 what's still open; none of it changes the table structure except where noted there.
+`domain-entity-types.md` (#27) covers how these tables map to C++ types.
 
-**Status:** draft, pending sign-off (see bottom).
+**Status:** agreed (see sign-off at bottom).
 
 ## What the two systems measure
 
@@ -386,5 +387,5 @@ the child column to check the FK when a parent row is deleted.
 
 ## Sign-off
 
-- [ ] Reviewed and agreed by Brent
-- [ ] Reviewed and agreed by brinhasavlin
+- [x] Reviewed and agreed by Brent
+- [x] Reviewed and agreed by brinhasavlin
