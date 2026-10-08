@@ -18,6 +18,11 @@ target_compile_options(project_warnings INTERFACE
         -fdiagnostics-color=always -Wfatal-errors -Wunreachable-code
 )
 
+# utils compiler setup
+add_library(ferrum_util STATIC src/utils/rep.cpp)
+target_link_libraries(ferrum_util PRIVATE project_warnings)
+target_include_directories(ferrum_util PUBLIC include)
+
 # config compiler setup
 add_library(ferrum_config STATIC src/config.cpp src/commands.cpp)
 target_include_directories(ferrum_config PUBLIC include third_party)
@@ -25,12 +30,14 @@ target_link_libraries(ferrum_config PUBLIC dpp::dpp)
 target_link_libraries(ferrum_config PRIVATE project_warnings)
 
 # main executable setup
-add_executable(ferrum main.cpp)
+add_executable(ferrum main.cpp
+)
 target_include_directories(ferrum SYSTEM PRIVATE third_party)
 target_link_libraries(ferrum PRIVATE
         dpp::dpp
         project_warnings
         ferrum_config
+        ferrum_util
 )
 
 
@@ -38,6 +45,7 @@ target_link_libraries(ferrum PRIVATE
 add_executable(test_ferrum
         test/test_ferrum.cpp
         test/test_config.cpp
+        test/test_utils.cpp
 )
 target_include_directories(test_ferrum PRIVATE include)
 target_include_directories(test_ferrum SYSTEM PUBLIC third_party)
@@ -45,6 +53,7 @@ target_link_libraries(test_ferrum PRIVATE
         GTest::gtest_main
         project_warnings
         ferrum_config
+        ferrum_util
 )
 enable_testing()
 add_test(NAME test_ferrum COMMAND test_ferrum)
