@@ -22,7 +22,9 @@ auto get_env_variable(StringLike auto const& key) -> std::string {
 }
 
 auto config::write_starter_config(const fs::path& path, std::string bot_token,
-                                  std::string server_id)
+                                  std::string server_id, std::string base_rep,
+                                  std::string base_exp, std::string rep_scale,
+                                  std::string exp_scale)
     -> std::expected<void, ConfigError> {
   std::error_code ec;
   fs::create_directories(path.parent_path(), ec);
@@ -69,6 +71,19 @@ auto config::write_starter_config(const fs::path& path, std::string bot_token,
                     "please go to {} and fill value in\n",
                     path.string()));
   }
+
+  if (base_rep.empty()) {
+    base_rep = "10";
+  }
+  if (base_exp.empty()) {
+    base_exp = "10";
+  }
+  if (rep_scale.empty()) {
+    rep_scale = "0.98";
+  }
+  if (exp_scale.empty()) {
+    exp_scale = "0.98";
+  }
   std::string tmp =
       "# Ferrum Configuration File\n"
       "# This file contains configuration settings for the Ferrum "
@@ -77,9 +92,15 @@ auto config::write_starter_config(const fs::path& path, std::string bot_token,
       "[bot]\n"
       "token = \"{}\"\n\n"
       "[server]\n"
-      "id = {}\n";
+      "id = {}\n\n"
+      "[settings]\n"
+      "base_rep = {}\n"
+      "base_exp = {}\n"
+      "rep_scale = {}\n"
+      "exp_scale = {}\n\n";
   std::string starter_config =
-      std::vformat(tmp, std::make_format_args(bot_token, server_id));
+      std::vformat(tmp, std::make_format_args(bot_token, server_id, base_rep,
+                                              base_exp, rep_scale, exp_scale));
 
   config_file << starter_config;
 
@@ -112,7 +133,9 @@ auto config::get_config(const fs::path& path)
                                   exists_error.message())});
     }
     const auto written = write_starter_config(
-        path, get_env_variable("BOT_TOKEN"), get_env_variable("SERVER_ID"));
+        path, get_env_variable("BOT_TOKEN"), get_env_variable("SERVER_ID"),
+        get_env_variable("BASE_REP"), get_env_variable("BASE_EXP"),
+        get_env_variable("REP_SCALE"), get_env_variable("EXP_SCALE"));
     if (!written) {
       return std::unexpected(written.error());
     }

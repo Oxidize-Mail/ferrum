@@ -4,5 +4,6 @@
 
 #ifndef FERRUM_REP_H
 #define FERRUM_REP_H
-constexpr int calculate_rep();
-#endif //FERRUM_REP_H
+#include "config.h"
+auto calculate_rep(int message_chain_len, config::Config) -> int;
+#endif  // FERRUM_REP_H
