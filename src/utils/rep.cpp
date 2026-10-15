@@ -3,6 +3,7 @@
 //
 #include "utils/rep.h"
 
+#include <cmath>
 #include <iostream>
 
 #include "../include/config.h"

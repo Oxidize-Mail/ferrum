@@ -19,7 +19,7 @@ target_compile_options(project_warnings INTERFACE
 )
 
 # utils compiler setup
-add_library(ferrum_util STATIC src/utils/rep.cpp)
+add_library(ferrum_util STATIC src/utils/rep.cpp src/utils/level.cpp)
 target_link_libraries(ferrum_util PRIVATE project_warnings)
 target_include_directories(ferrum_util PUBLIC include)
 
