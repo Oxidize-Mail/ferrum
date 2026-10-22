@@ -29,6 +29,9 @@ target_include_directories(ferrum_config PUBLIC include third_party)
 target_link_libraries(ferrum_config PUBLIC dpp::dpp)
 target_link_libraries(ferrum_config PRIVATE project_warnings)
 
+# utils headers expose config::Config, so consumers need config's includes
+target_link_libraries(ferrum_util PUBLIC ferrum_config)
+
 # main executable setup
 add_executable(ferrum main.cpp
 )
